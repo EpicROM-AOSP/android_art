@@ -1607,11 +1607,13 @@ WARN_UNUSED bool OnDeviceRefresh::CompileSystemServerArtifacts(
 
     const std::string jar_name(android::base::Basename(jar));
     const std::string profile = Concatenate({GetAndroidRoot(), "/framework/", jar_name, ".prof"});
-    bool has_any_profile = AddDex2OatProfile(args, readonly_files_raii, {profile});
     const std::string& compiler_filter = config_.GetSystemServerCompilerFilter();
+    const bool is_profile_usage_restricted = true;
+    const bool has_added_profile =
+        !is_profile_usage_restricted && AddDex2OatProfile(args, readonly_files_raii, {profile});
     if (!compiler_filter.empty()) {
       args.emplace_back("--compiler-filter=" + compiler_filter);
-    } else if (has_any_profile) {
+    } else if (has_added_profile) {
       args.emplace_back("--compiler-filter=speed-profile");
     } else {
       args.emplace_back("--compiler-filter=speed");
